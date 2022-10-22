@@ -2,13 +2,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-
-
 class LinearRegression:
     def __init__(self, data, attributes, label, r=1):
         self.df = data
-        self.df['b'] = np.zeros(len(self.df))
+        self.df['b'] = np.ones(len(self.df))
         self.data = self.df
         self.method = None
         self.optimizer = None
@@ -17,7 +14,7 @@ class LinearRegression:
         self.W = np.zeros(len(attributes) + 1).T
         self.y = data[label]
         self.X = data[['b']+list(attributes)]
-        self.r = 0.1#10e-09
+        self.r = 10e-09
         self.max_iter = int(10000)
         
     def LMS(self, method='BGD'):
@@ -57,6 +54,8 @@ class LinearRegression:
         for i in range(self.max_iter):
             for t in range(len(self.Y)):
                 W.append(W[-1] + self.r*(self.Y.iloc[t] - W[-1] @ X.iloc[t])*X.iloc[t])
+                # if np.linalg.norm(W[-1]-W[-2]) < 1e-6:
+                #     return np.array(W)
         return np.array(W)
 
     
@@ -77,6 +76,9 @@ def Eval(w, X):
 
 def Analytical_w(X, Y):
     w = np.zeros(X.shape[0]+1)
-    w[1::] = np.linalg.inv(X @ X.T) @ (X @ Y)
+    x = np.ones([X.shape[0]+1, X.shape[1]])
+    x[1::] = X
+    X = x
+    w[0::] = np.linalg.inv(X @ X.T) @ (X @ Y)
     return w
     
